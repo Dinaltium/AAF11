@@ -36,10 +36,11 @@ These are parked. TEST mode works without them.
 - [x] design spec (docs/specs)
 - [x] PROGRESS.md (this file)
 
-### Phase 1 — Shared contracts + data-mode layer
-- [ ] packages/shared: endpoint/payload TS types
-- [ ] `dataMode()` helper (single reader of AAF11_DATA_MODE)
-- [ ] mock fixtures (projects, members, metrics, cms)
+### Phase 1 — Shared contracts + data-mode layer ✅
+- [x] packages/shared: endpoint/payload TS types (`src/types.ts`)
+- [x] `dataMode()` helper (single reader of AAF11_DATA_MODE) — 6/6 tests pass
+- [x] mock fixtures (projects, members, metrics, cms) (`src/fixtures.ts`)
+- [x] typecheck + tests green
 
 ### Phase 2 — SDK
 - [ ] sdk-js: @aaf11/connector — meta/health/metrics/actions, register, registries
