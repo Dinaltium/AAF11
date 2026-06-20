@@ -1,0 +1,52 @@
+# Dependencies
+node_modules/
+.pnpm-store/
+
+# Build output
+dist/
+build/
+.next/
+out/
+*.tsbuildinfo
+
+# Rust / Tauri
+target/
+apps/desktop/src-tauri/target/
+
+# Environment & secrets — NEVER commit real values
+.env
+.env.local
+.env.*.local
+!.env.example
+
+# Test-mode local database (SQLite)
+*.db
+*.db-journal
+*.db-shm
+*.db-wal
+.aaf11/data/
+
+# Payload generated
+apps/hub/.payload/
+**/payload-types.ts.tmp
+
+# Logs
+*.log
+npm-debug.log*
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/*
+!.vscode/extensions.json
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+*.egg-info/
+packages/sdk-py/build/
+packages/sdk-py/dist/
+
+# Source docx kept for reference (already committed once)

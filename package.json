@@ -1,0 +1,23 @@
+{
+  "name": "aaf11-nexus",
+  "version": "0.1.0",
+  "private": true,
+  "description": "AAF11 Nexus — internal platform and operations hub for Team AAF11",
+  "packageManager": "pnpm@10.33.0",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "hub:dev": "pnpm --filter @aaf11/hub dev",
+    "web:dev": "pnpm --filter @aaf11/web dev",
+    "desktop:dev": "pnpm --filter @aaf11/desktop tauri dev",
+    "sdk:build": "pnpm --filter @aaf11/connector build",
+    "test": "pnpm -r test",
+    "test:all": "pnpm -r test",
+    "lint": "pnpm -r lint",
+    "typecheck": "pnpm -r typecheck"
+  },
+  "devDependencies": {
+    "typescript": "^5.6.3"
+  }
+}
