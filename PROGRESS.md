@@ -42,11 +42,11 @@ These are parked. TEST mode works without them.
 - [x] mock fixtures (projects, members, metrics, cms) (`src/fixtures.ts`)
 - [x] typecheck + tests green
 
-### Phase 2 — SDK
-- [ ] sdk-js: @aaf11/connector — meta/health/metrics/actions, register, registries
-- [ ] sdk-js: tests
-- [ ] sdk-py: aaf11 — same surface
-- [ ] sdk-py: tests
+### Phase 2 — SDK ✅
+- [x] sdk-js: @aaf11/connector — meta/health/metrics/actions, register, registries, express middleware
+- [x] sdk-js: tests 10/10 pass, typecheck clean
+- [x] sdk-py: aaf11 — same surface, stdlib core + optional FastAPI router
+- [x] sdk-py: tests 11/11 pass
 
 ### Phase 3 — Hub (Payload + Next.js)
 - [ ] Payload config, collections, SQLite/Neon adapter switch
