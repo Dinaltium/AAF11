@@ -70,10 +70,11 @@ export function App() {
     }
   }, []);
 
-  // Initial load + live auto-refresh every 10s.
+  // Initial load + a slow hourly safety sync. Use the Refresh button for
+  // on-demand updates while working.
   useEffect(() => {
     load();
-    const id = setInterval(load, 10_000);
+    const id = setInterval(load, 60 * 60 * 1000); // 1 hour
     return () => clearInterval(id);
   }, [load]);
 
@@ -179,8 +180,8 @@ function Dashboard({
         <div className="card" style={{ textAlign: 'center', padding: 40 }}>
           <div className="card-title">No projects connected</div>
           <p className="muted" style={{ marginTop: 8, fontSize: 14 }}>
-            Start the Hub and connect a project with the SDK. New projects appear here
-            automatically — the dashboard auto-refreshes every 10s.
+            Start the Hub and connect a project with the SDK, then hit{' '}
+            <span className="mono">Refresh</span>. (Auto-syncs hourly.)
           </p>
         </div>
       )}
