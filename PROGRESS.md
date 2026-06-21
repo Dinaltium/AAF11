@@ -48,12 +48,18 @@ These are parked. TEST mode works without them.
 - [x] sdk-py: aaf11 — same surface, stdlib core + optional FastAPI router
 - [x] sdk-py: tests 11/11 pass
 
-### Phase 3 — Hub (Payload + Next.js)
-- [ ] Payload config, collections, SQLite/Neon adapter switch
-- [ ] custom routes: /api/register, ingest, /api/public/*, /api/control/*
-- [ ] poller module (in-process for test; cron/worker for real)
-- [ ] seed script (test mode)
-- [ ] verify: hub boots in test mode, admin loads, public API returns seeded data
+### Phase 3 — Hub (Payload + Next.js) ✅
+- [x] Payload config, 8 collections, SQLite/Neon adapter switch (db.ts)
+- [x] custom routes: /api/register, /api/public/{projects,team,services,blog,blog/[slug]}, /api/control/[projectId]/[actionId], /api/poll
+- [x] poller module + standalone poller-worker.ts (cron route for real)
+- [x] seed script (test mode) — seeds 2 members/4 projects/3 services/2 team/2 posts/48 snapshots/2 actions
+- [x] logic layer (register/ingest/control/poller/public) — 6/6 tests pass vs SQLite
+- [x] VERIFIED: `next build` succeeds; server boots; /admin=200; public API returns seeded data; register POST works + rejects bad tokens
+- [x] typecheck clean
+
+**Run the Hub (test mode):**
+`cd apps/hub && AAF11_DATA_MODE=test PAYLOAD_SECRET=dev pnpm seed && pnpm dev`
+Admin: http://localhost:3000/admin  (login: rafan79200@gmail.com / test-rafan-pw)
 
 ### Phase 4 — Public website
 - [ ] Next.js app, reads Hub public API

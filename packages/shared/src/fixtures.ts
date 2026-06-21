@@ -12,7 +12,7 @@ import type {
   HealthStatus,
   MemberRole,
   MetricsSnapshot,
-} from './types.js';
+} from './types';
 
 export interface MockMember {
   id: string;
