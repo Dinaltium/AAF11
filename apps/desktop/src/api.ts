@@ -15,7 +15,6 @@ import {
   type ProjectRecord,
   type MetricsSnapshot,
   type ActionLogEntry,
-  type HealthStatus,
 } from '@aaf11/shared';
 
 const env = import.meta.env as Record<string, string | undefined>;
@@ -45,23 +44,10 @@ function mockProjectRecords(): ProjectRecord[] {
 
 export async function getProjects(token?: string): Promise<ProjectRecord[]> {
   if (isTestMode()) return mockProjectRecords();
-  const res = await fetch(`${HUB}/api/projects?limit=200&depth=1`, {
-    headers: authHeaders(token),
-  });
-  if (!res.ok) throw new Error(`Hub /api/projects → ${res.status}`);
-  const data = (await res.json()) as { docs: any[] };
-  return data.docs.map((d) => ({
-    id: String(d.id),
-    name: d.name,
-    connectorUrl: d.connectorUrl,
-    projectKey: d.projectKey,
-    ownerId: typeof d.owner === 'object' ? String(d.owner?.id) : String(d.owner ?? ''),
-    ownerName: typeof d.owner === 'object' ? d.owner?.name : undefined,
-    status: (d.status ?? 'healthy') as HealthStatus,
-    environment: d.environment ?? 'production',
-    lastSeen: d.lastSeen ?? undefined,
-    tags: Array.isArray(d.tags) ? d.tags : [],
-  }));
+  const res = await fetch(`${HUB}/api/desktop/projects`, { headers: authHeaders(token) });
+  if (!res.ok) throw new Error(`Hub /api/desktop/projects → ${res.status}`);
+  const data = (await res.json()) as { projects: ProjectRecord[] };
+  return data.projects;
 }
 
 export async function getSnapshots(
@@ -72,38 +58,20 @@ export async function getSnapshots(
     return mockSnapshots().filter((s) => s.projectId === projectId);
   }
   const res = await fetch(
-    `${HUB}/api/metrics_snapshots?where[project][equals]=${projectId}&sort=timestamp&limit=50`,
+    `${HUB}/api/desktop/snapshots?projectId=${encodeURIComponent(projectId)}`,
     { headers: authHeaders(token) },
   );
   if (!res.ok) return [];
-  const data = (await res.json()) as { docs: any[] };
-  return data.docs.map((d) => ({
-    projectId,
-    timestamp: d.timestamp,
-    health: d.health,
-    requestCount: d.requestCount ?? 0,
-    errorRate: d.errorRate ?? 0,
-    customData: d.customData ?? undefined,
-  }));
+  const data = (await res.json()) as { snapshots: MetricsSnapshot[] };
+  return data.snapshots;
 }
 
 export async function getActionLog(token?: string): Promise<ActionLogEntry[]> {
   if (isTestMode()) return mockActionLog();
-  const res = await fetch(`${HUB}/api/actions_log?sort=-timestamp&limit=100&depth=1`, {
-    headers: authHeaders(token),
-  });
+  const res = await fetch(`${HUB}/api/desktop/incidents`, { headers: authHeaders(token) });
   if (!res.ok) return [];
-  const data = (await res.json()) as { docs: any[] };
-  return data.docs.map((d) => ({
-    id: String(d.id),
-    projectId: typeof d.project === 'object' ? String(d.project?.id) : String(d.project),
-    projectName: typeof d.project === 'object' ? d.project?.name : undefined,
-    memberId: typeof d.member === 'object' ? String(d.member?.id) : String(d.member),
-    memberName: typeof d.member === 'object' ? d.member?.name : undefined,
-    action: d.action,
-    timestamp: d.timestamp,
-    result: d.result,
-  }));
+  const data = (await res.json()) as { incidents: ActionLogEntry[] };
+  return data.incidents;
 }
 
 export interface TriggerResult {
