@@ -105,6 +105,9 @@ populate from bundled mock fixtures — no backend required. Frontend-only previ
 
 ## 7. Using the SDK in a project
 
+> Full guide with every framework, config reference, and troubleshooting:
+> **[SDK.md](SDK.md)**. Quick version below.
+
 **JavaScript / Node (Express):**
 ```js
 import express from 'express';

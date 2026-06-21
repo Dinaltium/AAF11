@@ -8,6 +8,9 @@ the project with the Hub.
 npm install aaf11-sdk        # or pnpm add / yarn add
 ```
 
+> **Full integration guide** (Fastify, raw http, Next.js, Python, config
+> reference, troubleshooting): see `docs/SDK.md` in the AAF11 Nexus repo.
+
 ## Express
 
 ```js
