@@ -1,4 +1,4 @@
-// Loads the single root .env for tsx scripts (seed, poller-worker).
+// Loads the single root .env for tsx scripts (e.g. seed).
 // Import this FIRST, before payload.config, so the DB adapter sees the vars.
 import { config } from 'dotenv';
 import path from 'node:path';

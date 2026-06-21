@@ -50,8 +50,8 @@ These are parked. TEST mode works without them.
 
 ### Phase 3 — Hub (Payload + Next.js) ✅
 - [x] Payload config, 8 collections, SQLite/Neon adapter switch (db.ts)
-- [x] custom routes: /api/register, /api/public/{projects,team,services,blog,blog/[slug]}, /api/control/[projectId]/[actionId], /api/poll
-- [x] poller module + standalone poller-worker.ts (cron route for real)
+- [x] custom routes: /api/register, /api/public/{projects,team,services,blog,blog/[slug]}, /api/control/[projectId]/[actionId]
+- [x] poller logic (apps/hub/src/logic/poller.ts) retained as library; scheduled polling (cron route + interval worker) REMOVED for now
 - [x] seed script (test mode) — seeds 2 members/4 projects/3 services/2 team/2 posts/48 snapshots/2 actions
 - [x] logic layer (register/ingest/control/poller/public) — 6/6 tests pass vs SQLite
 - [x] VERIFIED: `next build` succeeds; server boots; /admin=200; public API returns seeded data; register POST works + rejects bad tokens

@@ -1,7 +1,11 @@
 /**
- * Poller — hits each project's /aaf11/health and /aaf11/metrics and records a
- * snapshot. Runs in-process on an interval in test mode; as a cron route or a
- * standalone worker in real mode (see poller-worker.ts).
+ * Poller logic — hits each project's /aaf11/health and /aaf11/metrics and
+ * records a snapshot.
+ *
+ * NOTE: scheduled polling (cron route / interval worker) is currently disabled.
+ * This module is retained as a library — call pollAll() from a future cron route
+ * or worker to re-enable polling without rebuilding the logic. It is exercised by
+ * the logic tests.
  */
 import type { Payload } from 'payload';
 import type { HealthReport, HealthStatus, MetricsReport } from '@aaf11/shared';

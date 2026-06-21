@@ -38,7 +38,6 @@
   keys, member tokens, and internal fields are never exposed. See
   `apps/hub/src/logic/public.ts`.
 - Control-plane endpoints additionally verify ownership before acting.
-- The poll endpoint requires `CRON_SECRET` in real mode.
 - Real-mode traffic must be **HTTPS only**.
 
 ## Local servers (future, per spec)

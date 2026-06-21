@@ -11,13 +11,12 @@ done without your own credentials — that is by design.
 | Vercel | Host Hub + public website | (project link) |
 | Vercel Blob (or S3) | Media uploads | `BLOB_READ_WRITE_TOKEN` |
 | — | Payload auth signing | `PAYLOAD_SECRET` (`openssl rand -hex 32`) |
-| — | Protect the poll cron | `CRON_SECRET` |
 
 ## 2. Hub → Vercel
 
 1. Set env vars in the Vercel project:
    `AAF11_DATA_MODE=real`, `DATABASE_URL`, `PAYLOAD_SECRET`,
-   `BLOB_READ_WRITE_TOKEN`, `CRON_SECRET`.
+   `BLOB_READ_WRITE_TOKEN`.
 2. Generate and run Payload migrations against Neon (don't use dev push in prod):
    ```bash
    cd apps/hub
@@ -27,13 +26,11 @@ done without your own credentials — that is by design.
 3. Deploy (Vercel auto-builds from GitHub). The admin is at `/admin`.
 4. Create the first admin member in the Payload admin UI.
 
-### Polling on Vercel
-Vercel Cron on the Hobby plan runs **once per day** only; per-minute needs Pro.
-Two supported options:
-- **Vercel Cron (Pro):** add a cron hitting `GET /api/poll` every minute with
-  `Authorization: Bearer $CRON_SECRET`.
-- **Home-server worker:** run `pnpm --filter @aaf11/hub poll` on the Ubuntu home
-  server (set `AAF11_POLL_INTERVAL_MS`). Recommended if you stay on Hobby.
+### Polling (disabled for now)
+Scheduled health/metrics polling is **turned off** at the moment — there is no
+cron route or worker. Snapshots come from the seed (test) or can be pushed by
+projects. The `pollAll` logic (`apps/hub/src/logic/poller.ts`) is kept so polling
+can be re-enabled later as a Vercel Cron route or a standalone worker.
 
 ## 3. Public website → Vercel
 

@@ -4,19 +4,26 @@ import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 
-// Isolate these tests in a fresh SQLite DB so they never collide with the dev
-// seed DB or a previous run. Deleting the file before boot guarantees a clean
-// schema every time.
+// Isolate these tests in a UNIQUE fresh SQLite DB per run so they never collide
+// with the dev seed DB and never reuse a stale/locked file (a leftover -wal from
+// a force-killed process causes libsql to hang). pid makes the name unique.
 process.env.AAF11_DATA_MODE ||= 'test';
 process.env.PAYLOAD_SECRET ||= 'dev-test-secret';
-const TESTDB = path.join(os.tmpdir(), 'aaf11-logic-test.db');
-for (const f of [TESTDB, `${TESTDB}-shm`, `${TESTDB}-wal`, `${TESTDB}-journal`]) {
-  try {
-    fs.rmSync(f);
-  } catch {
-    /* not present — fine */
+// Best-effort sweep of any leftover test DBs from previous runs.
+try {
+  for (const f of fs.readdirSync(os.tmpdir())) {
+    if (f.startsWith('aaf11-logic-test-')) {
+      try {
+        fs.rmSync(path.join(os.tmpdir(), f));
+      } catch {
+        /* locked/in-use — skip */
+      }
+    }
   }
+} catch {
+  /* tmpdir unreadable — skip */
 }
+const TESTDB = path.join(os.tmpdir(), `aaf11-logic-test-${process.pid}.db`);
 process.env.AAF11_SQLITE_URL = `file:${TESTDB}`;
 
 import { getPayload, type Payload } from 'payload';

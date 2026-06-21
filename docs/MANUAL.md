@@ -98,10 +98,10 @@ In test mode the dashboard, charts, projects, actions, and incident log all
 populate from bundled mock fixtures — no backend required. Frontend-only preview
 (no Rust): `pnpm dev` → <http://localhost:1420>.
 
-### 6.4 The poller (optional in test)
-```bash
-cd apps/hub && pnpm poll   # polls every 60s
-```
+> Note: scheduled polling (the cron job) is **disabled for now**. Health/metrics
+> snapshots come from the seed in test mode. The `pollAll` logic
+> (`apps/hub/src/logic/poller.ts`) is retained so polling can be re-enabled
+> later (a cron route or a worker) without rebuilding it.
 
 ## 7. Using the SDK in a project
 
@@ -157,9 +157,6 @@ Connector endpoints exposed: `/aaf11/meta`, `/health`, `/metrics`, `/actions`,
 **Control plane (Bearer member token):**
 - `POST /api/control/:projectId/:actionId` — verifies ownership, dispatches to
   the project, logs to `actions_log`.
-
-**Poller:**
-- `GET /api/poll` — runs one poll cycle (real mode requires `CRON_SECRET`).
 
 **Payload (auth):** full REST at `/api/<collection>` and GraphQL at `/api/graphql`.
 
