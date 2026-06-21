@@ -8,7 +8,7 @@ import type {
   ProjectMeta,
   RegistrationPayload,
   RegistrationResponse,
-} from '@aaf11/shared';
+} from './types.js';
 
 export interface ConnectorConfig {
   /** proj_* key for this project (from env: AAF11_PROJECT_KEY). */

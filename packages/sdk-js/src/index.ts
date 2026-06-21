@@ -5,4 +5,4 @@ export type {
   ConnectorResponse,
 } from './connector.js';
 export { nexusMiddleware } from './express.js';
-export type * from '@aaf11/shared';
+export type * from './types.js';

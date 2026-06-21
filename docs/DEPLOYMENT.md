@@ -50,11 +50,33 @@ Before a release build, regenerate the full icon set if you change the logo:
 `pnpm tauri icon src-tauri/icons/icon.png`. Distribute the installer to the team;
 each member signs in and their token is saved to the OS keychain.
 
-## 5. Projects → embed the SDK
+## 5. Publish + embed the SDK
 
-Each project sets `AAF11_PROJECT_KEY`, `AAF11_MEMBER_TOKEN`, `AAF11_HUB_URL` and
-calls `connector.start()`. Local backends are exposed to the Hub via Cloudflare
-Tunnel.
+The JS SDK is published as **`aaf11-sdk`** (self-contained, no workspace dep).
+
+```bash
+cd packages/sdk-js
+pnpm build                 # tsup → dist/ (ESM + CJS + .d.ts)
+npm publish                # unscoped public package; bump version first
+# or, to install without publishing:
+npm pack                   # → aaf11-sdk-0.1.0.tgz, then `npm i ./aaf11-sdk-0.1.0.tgz` in a project
+```
+
+Then in each project:
+```bash
+npm install aaf11-sdk
+```
+Set `AAF11_PROJECT_KEY`, `AAF11_MEMBER_TOKEN`, `AAF11_HUB_URL` in that project's
+env and call `connector.start()` (see the package README / MANUAL §7). The member
+token must already exist in the Hub's Members. Local backends reach the Hub via
+Cloudflare Tunnel.
+
+**Python SDK** (`aaf11`) ships to PyPI separately:
+```bash
+cd packages/sdk-py
+python -m build            # → dist/*.whl
+twine upload dist/*        # or `pip install dist/*.whl` locally
+```
 
 ## Deferred (not in this build)
 

@@ -25,7 +25,7 @@ goes down, every project keeps running.**
 
 | Component | Path | Stack | What it does |
 |-----------|------|-------|--------------|
-| **SDK (JS)** | `packages/sdk-js` | TypeScript | `@aaf11/connector` — embed in a Node project; exposes `/aaf11/*`, registers with the Hub |
+| **SDK (JS)** | `packages/sdk-js` | TypeScript | `aaf11-sdk` (npm) — embed in a Node project; exposes `/aaf11/*`, registers with the Hub |
 | **SDK (Python)** | `packages/sdk-py` | Python 3.10+ | `aaf11` — same surface for Python projects (optional FastAPI router) |
 | **Shared** | `packages/shared` | TypeScript | Wire-format types, the `test/real` switch, mock fixtures |
 | **Hub** | `apps/hub` | Next.js 15 + Payload 3 + Drizzle | Backend, API, CMS, control plane, admin UI |
@@ -108,7 +108,7 @@ populate from bundled mock fixtures — no backend required. Frontend-only previ
 **JavaScript / Node (Express):**
 ```js
 import express from 'express';
-import { AAF11Connector, nexusMiddleware } from '@aaf11/connector';
+import { AAF11Connector, nexusMiddleware } from 'aaf11-sdk';
 
 const connector = new AAF11Connector({
   projectKey: process.env.AAF11_PROJECT_KEY,

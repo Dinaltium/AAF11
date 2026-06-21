@@ -11,7 +11,7 @@
     "hub:dev": "pnpm --filter @aaf11/hub dev",
     "web:dev": "pnpm --filter @aaf11/web dev",
     "desktop:dev": "pnpm --filter @aaf11/desktop tauri dev",
-    "sdk:build": "pnpm --filter @aaf11/connector build",
+    "sdk:build": "pnpm --filter aaf11-sdk build",
     "test": "pnpm -r test",
     "test:all": "pnpm -r test",
     "lint": "pnpm -r lint",

@@ -1,7 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { AAF11Connector } from './connector.js';
-import type { HealthReport, MetricsReport, ProjectMeta } from '@aaf11/shared';
+import type { HealthReport, MetricsReport, ProjectMeta } from './types.js';
 
 function make() {
   return new AAF11Connector({

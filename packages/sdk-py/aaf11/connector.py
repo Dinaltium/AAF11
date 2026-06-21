@@ -1,6 +1,6 @@
 """AAF11 Nexus connector — framework-agnostic core.
 
-Mirrors the JavaScript @aaf11/connector surface. The core has zero third-party
+Mirrors the JavaScript aaf11-sdk surface. The core has zero third-party
 dependencies; the FastAPI router (aaf11.router) is optional.
 """
 
