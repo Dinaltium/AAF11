@@ -1,5 +1,11 @@
 import React, { useCallback, useEffect, useState } from 'react';
-import type { ProjectRecord, ActionLogEntry, MetricsSnapshot, HealthStatus } from '@aaf11/shared';
+import type {
+  ProjectRecord,
+  ActionLogEntry,
+  MetricsSnapshot,
+  HealthStatus,
+  ActionDescriptor,
+} from '@aaf11/shared';
 import { Chart } from './components/Chart';
 import { openAdminWindow, notify } from './tauri';
 import {
@@ -7,6 +13,7 @@ import {
   getProjects,
   getSnapshots,
   getActionLog,
+  getActions,
   triggerAction,
 } from './api';
 
@@ -251,28 +258,84 @@ function Actions({
   onTrigger: (projectId: string, action: string) => void;
 }) {
   const [pid, setPid] = useState(projects[0]?.id ?? '');
+  const [actions, setActions] = useState<ActionDescriptor[]>([]);
+  const [reachable, setReachable] = useState(true);
+  const [loading, setLoading] = useState(false);
+
   useEffect(() => {
     if (!pid && projects[0]) setPid(projects[0].id);
   }, [projects, pid]);
+
+  useEffect(() => {
+    if (!pid) return;
+    let cancelled = false;
+    setLoading(true);
+    getActions(pid, MEMBER_TOKEN)
+      .then((r) => {
+        if (cancelled) return;
+        setActions(r.actions);
+        setReachable(r.reachable);
+      })
+      .finally(() => {
+        if (!cancelled) setLoading(false);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [pid]);
+
+  function classFor(id: string): string {
+    if (id === 'kill') return 'btn btn-danger';
+    if (id === 'restart') return 'btn btn-primary';
+    return 'btn';
+  }
 
   return (
     <div className="card" style={{ maxWidth: 560 }}>
       <div className="section-title">Dispatch a control action</div>
       <p className="muted" style={{ marginBottom: 16, fontSize: 13 }}>
         Actions route through the Hub control plane, verify ownership, and are logged to the
-        incident trail.
+        incident trail. Buttons reflect what this project actually exposes.
       </p>
-      <select className="select" value={pid} onChange={(e) => setPid(e.target.value)} style={{ width: '100%', marginBottom: 16 }}>
+      <select
+        className="select"
+        value={pid}
+        onChange={(e) => setPid(e.target.value)}
+        style={{ width: '100%', marginBottom: 16 }}
+      >
         {projects.map((p) => (
-          <option key={p.id} value={p.id}>{p.name}</option>
+          <option key={p.id} value={p.id}>
+            {p.name}
+          </option>
         ))}
       </select>
-      <div className="row">
-        <button className="btn btn-primary" onClick={() => onTrigger(pid, 'restart')}>↻ Restart</button>
-        <button className="btn" onClick={() => onTrigger(pid, 'clear_cache')}>✸ Clear cache</button>
-        <button className="btn" onClick={() => onTrigger(pid, 'rollback')}>⟲ Rollback</button>
-        <button className="btn btn-danger" onClick={() => onTrigger(pid, 'kill')}>■ Kill switch</button>
-      </div>
+      {loading ? (
+        <p className="muted" style={{ fontSize: 13 }}>
+          loading actions…
+        </p>
+      ) : !reachable ? (
+        <p className="muted" style={{ fontSize: 13 }}>
+          Connector unreachable — can&apos;t list actions. Is the project running?
+        </p>
+      ) : actions.length === 0 ? (
+        <p className="muted" style={{ fontSize: 13 }}>
+          This project exposes no actions. Register some with{' '}
+          <span className="mono">connector.registerAction(...)</span>.
+        </p>
+      ) : (
+        <div className="row">
+          {actions.map((a) => (
+            <button
+              key={a.id}
+              className={classFor(a.id)}
+              title={a.description ?? a.id}
+              onClick={() => onTrigger(pid, a.id)}
+            >
+              {a.label}
+            </button>
+          ))}
+        </div>
+      )}
     </div>
   );
 }

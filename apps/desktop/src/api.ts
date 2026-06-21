@@ -15,6 +15,7 @@ import {
   type ProjectRecord,
   type MetricsSnapshot,
   type ActionLogEntry,
+  type ActionDescriptor,
 } from '@aaf11/shared';
 
 const env = import.meta.env as Record<string, string | undefined>;
@@ -72,6 +73,31 @@ export async function getActionLog(token?: string): Promise<ActionLogEntry[]> {
   if (!res.ok) return [];
   const data = (await res.json()) as { incidents: ActionLogEntry[] };
   return data.incidents;
+}
+
+export interface ActionList {
+  actions: ActionDescriptor[];
+  reachable: boolean;
+}
+
+/** Fetch the live action list a project exposes (proxied by the Hub). */
+export async function getActions(projectId: string, token?: string): Promise<ActionList> {
+  if (isTestMode()) {
+    return {
+      actions: [
+        { id: 'restart', label: 'Restart' },
+        { id: 'clear_cache', label: 'Clear cache' },
+        { id: 'rollback', label: 'Rollback' },
+        { id: 'kill', label: 'Kill switch' },
+      ],
+      reachable: true,
+    };
+  }
+  const res = await fetch(`${HUB}/api/desktop/actions?projectId=${encodeURIComponent(projectId)}`, {
+    headers: authHeaders(token),
+  });
+  if (!res.ok) return { actions: [], reachable: false };
+  return (await res.json()) as ActionList;
 }
 
 export interface TriggerResult {
