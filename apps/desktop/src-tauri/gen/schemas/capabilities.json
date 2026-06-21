@@ -1,0 +1,1 @@
+{"default":{"identifier":"default","description":"Default capability for the AAF11 Nexus desktop app.","local":true,"windows":["main","admin"],"permissions":["core:default","core:window:allow-set-focus","core:webview:allow-create-webview-window","notification:default"]}}

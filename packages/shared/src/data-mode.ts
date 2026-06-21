@@ -17,10 +17,9 @@ export type DataMode = 'test' | 'real';
 function readEnv(): string {
   // Node / Next.js server / Tauri sidecar all expose process.env.
   // Browsers do not read this flag — they consume the Hub API instead.
-  const raw =
-    typeof process !== 'undefined' && process.env
-      ? process.env.AAF11_DATA_MODE
-      : undefined;
+  // Access via globalThis so this stays type-safe without @types/node.
+  const g = globalThis as { process?: { env?: Record<string, string | undefined> } };
+  const raw = g.process?.env?.AAF11_DATA_MODE;
   return (raw ?? 'test').toLowerCase().trim();
 }
 

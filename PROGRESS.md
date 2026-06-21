@@ -71,12 +71,18 @@ Admin: http://localhost:3000/admin  (login: rafan79200@gmail.com / test-rafan-pw
 **Run the web (test mode, standalone):** `cd apps/web && AAF11_DATA_MODE=test pnpm dev` → http://localhost:3001
 With Hub live: set NEXT_PUBLIC_HUB_URL=http://localhost:3000
 
-### Phase 5 — Desktop app
-- [ ] Tauri 2 + React + Vite scaffold
-- [ ] dashboard, health grid, charts, action panel, incident log
-- [ ] Payload admin webview window
-- [ ] keychain token storage, native notifications
-- [ ] design pass
+### Phase 5 — Desktop app ✅
+- [x] Tauri 2 + React + Vite scaffold (apps/desktop)
+- [x] dashboard (stat cards + per-project SVG charts), projects table, action panel, incident log
+- [x] Payload admin webview window (open_admin_window Rust command)
+- [x] OS-keychain token storage (keyring crate: save_token/get_token), native notifications
+- [x] dark app-shell design, test/real mode pill, toast
+- [x] test mode runs fully from bundled mock fixtures (no backend); real hits Hub
+- [x] VERIFIED: tsc clean, vite build OK (40 modules), `cargo check` passes (full Rust shell compiles)
+
+**Run the desktop app (test mode):** `cd apps/desktop && pnpm tauri dev`
+(Rust + WebView2 required — both present on this Win11 machine.)
+Frontend-only preview without Rust: `pnpm dev` → http://localhost:1420
 
 ### Phase 6 — Verify + document + continuation
 - [ ] end-to-end test-mode run
