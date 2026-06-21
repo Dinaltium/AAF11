@@ -58,6 +58,34 @@ importers:
         specifier: ^5.6.3
         version: 5.9.3
 
+  apps/web:
+    dependencies:
+      '@aaf11/shared':
+        specifier: workspace:*
+        version: link:../../packages/shared
+      next:
+        specifier: 15.4.11
+        version: 15.4.11(react-dom@19.1.0(react@19.1.0))(react@19.1.0)(sass@1.77.4)
+      react:
+        specifier: 19.1.0
+        version: 19.1.0
+      react-dom:
+        specifier: 19.1.0
+        version: 19.1.0(react@19.1.0)
+    devDependencies:
+      '@types/node':
+        specifier: ^22.10.2
+        version: 22.20.0
+      '@types/react':
+        specifier: ^19.0.1
+        version: 19.2.17
+      '@types/react-dom':
+        specifier: ^19.0.2
+        version: 19.2.3(@types/react@19.2.17)
+      typescript:
+        specifier: ^5.6.3
+        version: 5.9.3
+
   packages/sdk-js:
     dependencies:
       '@aaf11/shared':
@@ -1187,6 +1215,11 @@ packages:
 
   '@types/pg@8.20.0':
     resolution: {integrity: sha512-bEPFOaMAHTEP1EzpvHTbmwR8UsFyHSKsRisLIHVMXnpNefSbGA1bD6CVy+qKjGSqmZqNqBDV2azOBo8TgkcVow==}
+
+  '@types/react-dom@19.2.3':
+    resolution: {integrity: sha512-jp2L/eY6fn+KgVVQAOqYItbF0VY/YApe5Mz2F0aykSO8gx31bYCZyvSeYxCHKvzHG5eZjc+zyaS5BrBWya2+kQ==}
+    peerDependencies:
+      '@types/react': ^19.2.0
 
   '@types/react-transition-group@4.4.12':
     resolution: {integrity: sha512-8TV6R3h2j7a91c+1DXdJi3Syo69zzIZbz7Lg5tORM5LEJG7X/E6a1V3drRyBRZq7/utz7A+c4OgYLiLcYGHG6w==}
@@ -3731,6 +3764,10 @@ snapshots:
       '@types/node': 22.20.0
       pg-protocol: 1.15.0
       pg-types: 2.2.0
+
+  '@types/react-dom@19.2.3(@types/react@19.2.17)':
+    dependencies:
+      '@types/react': 19.2.17
 
   '@types/react-transition-group@4.4.12(@types/react@19.2.17)':
     dependencies:

@@ -61,10 +61,15 @@ These are parked. TEST mode works without them.
 `cd apps/hub && AAF11_DATA_MODE=test PAYLOAD_SECRET=dev pnpm seed && pnpm dev`
 Admin: http://localhost:3000/admin  (login: rafan79200@gmail.com / test-rafan-pw)
 
-### Phase 4 — Public website
-- [ ] Next.js app, reads Hub public API
-- [ ] pages: home, projects, team, services, blog, blog/[slug], contact
-- [ ] design pass (high-end skills)
+### Phase 4 — Public website ✅
+- [x] Next.js 15 app (apps/web), reads Hub public API via src/lib/api.ts
+- [x] test/real fallback: test mode renders from mock fixtures if Hub down; real requires Hub
+- [x] pages: home, projects, team, services, blog, blog/[slug], contact
+- [x] design pass: dark editorial/technical system (globals.css), status badges, reveal motion
+- [x] VERIFIED: next build OK (7 pages); server renders mock data + PREVIEW banner in test mode
+
+**Run the web (test mode, standalone):** `cd apps/web && AAF11_DATA_MODE=test pnpm dev` → http://localhost:3001
+With Hub live: set NEXT_PUBLIC_HUB_URL=http://localhost:3000
 
 ### Phase 5 — Desktop app
 - [ ] Tauri 2 + React + Vite scaffold
