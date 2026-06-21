@@ -1,11 +1,25 @@
 import { test, before } from 'node:test';
 import assert from 'node:assert/strict';
+import fs from 'node:fs';
+import os from 'node:os';
+import path from 'node:path';
 
+// Isolate these tests in a fresh SQLite DB so they never collide with the dev
+// seed DB or a previous run. Deleting the file before boot guarantees a clean
+// schema every time.
 process.env.AAF11_DATA_MODE ||= 'test';
 process.env.PAYLOAD_SECRET ||= 'dev-test-secret';
+const TESTDB = path.join(os.tmpdir(), 'aaf11-logic-test.db');
+for (const f of [TESTDB, `${TESTDB}-shm`, `${TESTDB}-wal`, `${TESTDB}-journal`]) {
+  try {
+    fs.rmSync(f);
+  } catch {
+    /* not present — fine */
+  }
+}
+process.env.AAF11_SQLITE_URL = `file:${TESTDB}`;
 
 import { getPayload, type Payload } from 'payload';
-import config from '../payload.config.js';
 import { registerProject } from './registration.js';
 import { recordSnapshot } from './ingest.js';
 import { dispatchAction, type FetchLike } from './control.js';
@@ -24,6 +38,9 @@ const mockFetch: FetchLike = async (url) => ({
 });
 
 before(async () => {
+  // Dynamic import AFTER AAF11_SQLITE_URL is set above — a static import would
+  // hoist above the env assignment and build the adapter with the wrong path.
+  const config = (await import('../payload.config.js')).default;
   payload = await getPayload({ config });
 });
 

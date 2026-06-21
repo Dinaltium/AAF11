@@ -84,11 +84,19 @@ With Hub live: set NEXT_PUBLIC_HUB_URL=http://localhost:3000
 (Rust + WebView2 required — both present on this Win11 machine.)
 Frontend-only preview without Rust: `pnpm dev` → http://localhost:1420
 
-### Phase 6 — Verify + document + continuation
-- [ ] end-to-end test-mode run
-- [ ] complete documentation in docs/ (architecture, operations, test-vs-real, run)
-- [ ] scheduled continuation agent set up
-- [ ] final commit + summary
+### Phase 6 — Verify + document + continuation ✅
+- [x] full test suite green: shared 6/6, sdk-js 10/10, hub 6/6 (isolated temp DB), sdk-py 11/11
+- [x] end-to-end chain verified: web (real mode) renders LIVE Hub data, no mock fallback
+- [x] complete documentation in docs/: MANUAL, TEST-VS-REAL, SECURITY, DEPLOYMENT, DO-AND-DONT, index
+- [x] root README pointing into docs/
+- [x] continuation: build COMPLETED in-session — durable record is git + this file.
+      No recurring autonomous agent scheduled (no remaining work for it; the open
+      items below need owner secrets). Resume instructions at top of this file.
+
+## BUILD COMPLETE (2026-06-21)
+All five subsystems built and verified in test mode. Remaining work is owner-gated
+(needs real secrets) or explicitly deferred — see "Owner action items" and Phase 4
+notes in the design spec. Nothing is half-finished.
 
 ## Decisions log
 - Payload as Hub backend; desktop primary; Payload admin embedded via Tauri webview.
