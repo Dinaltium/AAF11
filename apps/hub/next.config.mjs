@@ -1,4 +1,10 @@
+import { config } from 'dotenv';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { withPayload } from '@payloadcms/next/withPayload';
+
+// Load the single root .env (one file for Hub, Web, Desktop).
+config({ path: path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../../.env') });
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {

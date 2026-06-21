@@ -7,6 +7,7 @@
  *
  * Run: pnpm --filter @aaf11/hub seed
  */
+import './load-env';
 import { getPayload } from 'payload';
 import {
   assertTest,

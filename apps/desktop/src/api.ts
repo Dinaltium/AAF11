@@ -19,8 +19,8 @@ import {
 } from '@aaf11/shared';
 
 const env = import.meta.env as Record<string, string | undefined>;
-const MODE = env.VITE_AAF11_DATA_MODE ?? 'test';
-const HUB = env.VITE_AAF11_HUB_URL ?? 'http://localhost:3000';
+const MODE = env.AAF11_DATA_MODE ?? 'test';
+const HUB = env.AAF11_HUB_URL ?? 'http://localhost:3000';
 
 export function isTestMode(): boolean {
   return MODE !== 'real';

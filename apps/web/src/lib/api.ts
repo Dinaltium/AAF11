@@ -18,7 +18,7 @@ import {
   type PublicBlogPost,
 } from '@aaf11/shared';
 
-const HUB = process.env.NEXT_PUBLIC_HUB_URL ?? 'http://localhost:3000';
+const HUB = process.env.AAF11_HUB_URL ?? 'http://localhost:3000';
 
 async function fetchJson<T>(path: string): Promise<T | null> {
   try {

@@ -10,9 +10,9 @@ import {
   triggerAction,
 } from './api';
 
-const HUB = (import.meta.env as Record<string, string | undefined>).VITE_AAF11_HUB_URL ?? 'http://localhost:3000';
+const HUB = (import.meta.env as Record<string, string | undefined>).AAF11_HUB_URL ?? 'http://localhost:3000';
 const MEMBER_TOKEN =
-  (import.meta.env as Record<string, string | undefined>).VITE_AAF11_MEMBER_TOKEN ?? 'mbr_rafan_test0001';
+  (import.meta.env as Record<string, string | undefined>).AAF11_MEMBER_TOKEN ?? 'mbr_rafan_test0001';
 
 type View = 'dashboard' | 'projects' | 'actions' | 'incidents' | 'content';
 

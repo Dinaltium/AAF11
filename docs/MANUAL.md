@@ -68,14 +68,15 @@ cp .env.example .env          # defaults to AAF11_DATA_MODE=test
 
 ## 6. Running everything (test mode — no secrets needed)
 
-Each component runs independently. Test mode means SQLite + mock data, zero
-external services.
+All config lives in **one root `.env`** (`cp .env.example .env`, defaults to
+test). Every app reads it — no per-command env vars. Each component runs
+independently; test mode means SQLite + mock data, zero external services.
 
 ### 6.1 Hub
 ```bash
 cd apps/hub
-AAF11_DATA_MODE=test PAYLOAD_SECRET=dev pnpm seed   # one-time: load mock data
-AAF11_DATA_MODE=test PAYLOAD_SECRET=dev pnpm dev
+pnpm seed     # one-time: load mock data
+pnpm dev
 ```
 - Admin UI: <http://localhost:3000/admin> — log in with **rafan79200@gmail.com /
   test-rafan-pw** (seeded).
@@ -83,17 +84,15 @@ AAF11_DATA_MODE=test PAYLOAD_SECRET=dev pnpm dev
 
 ### 6.2 Public website
 ```bash
-cd apps/web
-AAF11_DATA_MODE=test pnpm dev      # http://localhost:3001
+cd apps/web && pnpm dev      # http://localhost:3001
 ```
 With no Hub running, the site renders from mock fixtures and shows a PREVIEW
-banner. To pull live content from the Hub, set
-`NEXT_PUBLIC_HUB_URL=http://localhost:3000`.
+banner. With the Hub up it pulls live content (it reads `AAF11_HUB_URL` from the
+root `.env`).
 
 ### 6.3 Desktop app
 ```bash
-cd apps/desktop
-pnpm tauri dev        # builds the Rust shell + opens the window
+cd apps/desktop && pnpm tauri dev    # builds the Rust shell + opens the window
 ```
 In test mode the dashboard, charts, projects, actions, and incident log all
 populate from bundled mock fixtures — no backend required. Frontend-only preview
@@ -101,8 +100,7 @@ populate from bundled mock fixtures — no backend required. Frontend-only previ
 
 ### 6.4 The poller (optional in test)
 ```bash
-cd apps/hub
-AAF11_DATA_MODE=test PAYLOAD_SECRET=dev pnpm poll   # polls every 60s
+cd apps/hub && pnpm poll   # polls every 60s
 ```
 
 ## 7. Using the SDK in a project

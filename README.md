@@ -10,23 +10,20 @@ showcase every project the team ships, from one federated system.
 
 ```bash
 pnpm install
-cp .env.example .env
+cp .env.example .env          # ONE env file for all 3 apps (already defaults to test)
 
-# Hub (backend + admin)
-cd apps/hub && AAF11_DATA_MODE=test PAYLOAD_SECRET=dev pnpm seed && \
-  AAF11_DATA_MODE=test PAYLOAD_SECRET=dev pnpm dev        # :3000/admin
-
-# Public website
-cd apps/web && AAF11_DATA_MODE=test pnpm dev              # :3001
-
-# Desktop app (primary interface)
-cd apps/desktop && pnpm tauri dev
+cd apps/hub && pnpm seed && pnpm dev      # :3000/admin
+cd apps/web && pnpm dev                   # :3001
+cd apps/desktop && pnpm tauri dev         # primary interface
 ```
 
-## The one switch
+No per-command env vars — every app reads the single **root `.env`**.
 
-`AAF11_DATA_MODE=test|real` — test = SQLite + mock data (offline), real = Neon
-Postgres + live data. See [docs/TEST-VS-REAL.md](docs/TEST-VS-REAL.md).
+## The one switch — one file
+
+Edit **`.env`** (root). Flip `AAF11_DATA_MODE=test|real` and (for real) paste your
+`DATABASE_URL`. test = SQLite + mock (offline), real = Neon Postgres + live data.
+All three apps read this one file. See [docs/TEST-VS-REAL.md](docs/TEST-VS-REAL.md).
 
 ## Structure
 

@@ -39,14 +39,18 @@ assertTest('seed')     // throws unless test — guards mock-only code
   it physically cannot run in real mode, so mock data can never reach production.
 - **Public website** (`apps/web/src/lib/api.ts`) only falls back to mock when
   `dataMode() === 'test'`.
-- **Desktop** reads `VITE_AAF11_DATA_MODE` (Vite exposes only `VITE_`-prefixed
-  vars to the browser bundle) — `test` uses bundled fixtures, `real` calls the Hub.
+- **Desktop** reads `AAF11_DATA_MODE` from the same root `.env` (Vite is
+  configured with `envDir` = repo root and `envPrefix` includes `AAF11_`) —
+  `test` uses bundled fixtures, `real` calls the Hub.
 
-## How to switch
+## One file, one switch
+
+All three apps read the **single root `.env`** (`cp .env.example .env`). You
+never edit per-app env files.
 
 ### Run in test (default — no secrets)
 ```bash
-# .env
+# .env (root)
 AAF11_DATA_MODE=test
 ```
 Seed once, then run. SQLite file lives at `apps/hub/.aaf11/data/test.db`
@@ -54,15 +58,15 @@ Seed once, then run. SQLite file lives at `apps/hub/.aaf11/data/test.db`
 
 ### Run in real (production data)
 ```bash
-# .env
+# .env (root) — same file, flip the switch and paste your DB URL
 AAF11_DATA_MODE=real
 DATABASE_URL=postgres://...neon...
 PAYLOAD_SECRET=<strong random>
 BLOB_READ_WRITE_TOKEN=<vercel blob>
 ```
 Then run Payload migrations against Neon (see [DEPLOYMENT](DEPLOYMENT.md)) — do
-**not** run the seed script. The desktop app needs `VITE_AAF11_DATA_MODE=real`
-and a member token (stored in the OS keychain).
+**not** run the seed script. The desktop app picks up `AAF11_DATA_MODE=real` from
+the same root `.env`; in production the member token comes from the OS keychain.
 
 ## The guarantee
 

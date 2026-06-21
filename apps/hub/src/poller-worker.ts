@@ -5,6 +5,7 @@
  *
  * Run: pnpm --filter @aaf11/hub poll
  */
+import './load-env';
 import { getPayload } from 'payload';
 import config from './payload.config.js';
 import { pollAll } from './logic/poller.js';
