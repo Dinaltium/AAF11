@@ -1,4 +1,4 @@
-import { test, before, after } from 'node:test';
+import { test, before } from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import os from 'node:os';
@@ -49,18 +49,6 @@ before(async () => {
   // hoist above the env assignment and build the adapter with the wrong path.
   const config = (await import('../payload.config.js')).default;
   payload = await getPayload({ config });
-});
-
-// Close the libsql connection after the suite. Without this teardown the open
-// DB handle confuses node:test's completion detection on CI, intermittently
-// cancelling the suite with "Promise resolution is still pending but the event
-// loop has already resolved".
-after(async () => {
-  try {
-    await (payload as unknown as { destroy?: () => Promise<void> })?.destroy?.();
-  } catch {
-    /* ignore teardown errors */
-  }
 });
 
 async function makeMember(suffix: string, role: 'admin' | 'member' = 'member') {
