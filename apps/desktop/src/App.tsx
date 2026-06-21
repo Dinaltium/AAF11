@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import type { ProjectRecord, ActionLogEntry, MetricsSnapshot, HealthStatus } from '@aaf11/shared';
 import { Chart } from './components/Chart';
 import { openAdminWindow, notify } from './tauri';
@@ -40,17 +40,35 @@ export function App() {
   const [snaps, setSnaps] = useState<Record<string, MetricsSnapshot[]>>({});
   const [log, setLog] = useState<ActionLogEntry[]>([]);
   const [toast, setToast] = useState<string | null>(null);
+  const [hubOk, setHubOk] = useState(true);
+  const [lastSync, setLastSync] = useState<number | null>(null);
+  const [loading, setLoading] = useState(false);
 
-  useEffect(() => {
-    (async () => {
-      const ps = await getProjects(MEMBER_TOKEN).catch(() => []);
+  const load = useCallback(async () => {
+    setLoading(true);
+    try {
+      const ps = await getProjects(MEMBER_TOKEN);
       setProjects(ps);
-      setLog(await getActionLog(MEMBER_TOKEN).catch(() => []));
       const map: Record<string, MetricsSnapshot[]> = {};
       for (const p of ps) map[p.id] = await getSnapshots(p.id, MEMBER_TOKEN).catch(() => []);
       setSnaps(map);
-    })();
+      setLog(await getActionLog(MEMBER_TOKEN).catch(() => []));
+      setHubOk(true);
+    } catch {
+      // real mode + Hub unreachable: flag it, keep last-known data
+      setHubOk(false);
+    } finally {
+      setLastSync(Date.now());
+      setLoading(false);
+    }
   }, []);
+
+  // Initial load + live auto-refresh every 10s.
+  useEffect(() => {
+    load();
+    const id = setInterval(load, 10_000);
+    return () => clearInterval(id);
+  }, [load]);
 
   function showToast(msg: string) {
     setToast(msg);
@@ -81,9 +99,26 @@ export function App() {
       <div className="main">
         <div className="topbar">
           <h1>{NAV.find((n) => n.id === view)?.label}</h1>
-          <span className={`mode-pill ${isTestMode() ? 'mode-test' : 'mode-real'}`}>
-            {isTestMode() ? 'TEST MODE' : 'REAL MODE'}
-          </span>
+          <div className="row" style={{ gap: 14 }}>
+            {!isTestMode() && (
+              <span
+                className="mono"
+                style={{ fontSize: 11, color: hubOk ? 'var(--ok)' : 'var(--down)' }}
+                title={hubOk ? 'Hub reachable' : 'Hub unreachable — is it running?'}
+              >
+                ● {hubOk ? 'hub live' : 'hub unreachable'}
+              </span>
+            )}
+            <span className="mono muted" style={{ fontSize: 11 }}>
+              {loading ? 'syncing…' : lastSync ? `synced ${Math.round((Date.now() - lastSync) / 1000)}s ago` : '—'}
+            </span>
+            <button className="btn" onClick={() => load()} disabled={loading}>
+              ↻ Refresh
+            </button>
+            <span className={`mode-pill ${isTestMode() ? 'mode-test' : 'mode-real'}`}>
+              {isTestMode() ? 'TEST MODE' : 'REAL MODE'}
+            </span>
+          </div>
         </div>
         <div className="content">
           {view === 'dashboard' && <Dashboard projects={projects} snaps={snaps} onNotify={() => notify('AAF11 Nexus', 'Test alert from the desktop app')} />}
@@ -133,6 +168,15 @@ function Dashboard({
         <div className="section-title" style={{ margin: 0 }}>Live project health</div>
         <button className="btn" onClick={onNotify}>Test alert →</button>
       </div>
+      {projects.length === 0 && (
+        <div className="card" style={{ textAlign: 'center', padding: 40 }}>
+          <div className="card-title">No projects connected</div>
+          <p className="muted" style={{ marginTop: 8, fontSize: 14 }}>
+            Start the Hub and connect a project with the SDK. New projects appear here
+            automatically — the dashboard auto-refreshes every 10s.
+          </p>
+        </div>
+      )}
       <div className="grid grid-3">
         {projects.map((p) => {
           const series = (snaps[p.id] ?? []).map((s) => s.requestCount);
