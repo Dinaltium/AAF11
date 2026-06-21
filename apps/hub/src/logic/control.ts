@@ -77,5 +77,24 @@ export async function dispatchAction(
     overrideAccess: true,
   });
 
+  // No poller runs, so reflect lifecycle actions on the project status directly
+  // (only when the connector reported success).
+  const STATUS_BY_ACTION: Record<string, 'healthy' | 'degraded' | 'down'> = {
+    kill: 'down',
+    stop: 'down',
+    restart: 'healthy',
+    resume: 'healthy',
+    start: 'healthy',
+  };
+  const next = STATUS_BY_ACTION[opts.actionId];
+  if (result.ok && next) {
+    await payload.update({
+      collection: 'projects',
+      id: project.id,
+      data: { status: next, lastSeen: opts.now ?? new Date().toISOString() },
+      overrideAccess: true,
+    });
+  }
+
   return { status: result.ok ? 200 : 502, body: result };
 }
