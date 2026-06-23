@@ -1,0 +1,891 @@
+/* =========================================================================
+   AAF11 home — scoped design system. Charcoal substrate, orange signal.
+   Everything lives under .root so the other six pages keep globals.css.
+   Colors anchored to the real logo: #ff7a1a→#ffc233 orange, #232834/#0b0c0f
+   charcoal. OKLCH used for the derived neutral ramp.
+   ========================================================================= */
+
+/* Display face for the AAF11 wordmark — Boston Angel (in apps/web/public/fonts). */
+@font-face {
+  font-family: 'Boston Angel';
+  src: url('/fonts/BostonAngel-Regular.woff2') format('woff2');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Boston Angel';
+  src: url('/fonts/BostonAngel-Medium.woff2') format('woff2');
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Boston Angel';
+  src: url('/fonts/BostonAngel-Bold.woff2') format('woff2');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+/* Outfit (variable) — the AAF11 wordmark face. */
+@font-face {
+  font-family: 'Outfit';
+  src: url('/fonts/Outfit-Variable.woff2') format('woff2');
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+.root {
+  /* substrate */
+  --ink: #0b0c0f;
+  --ink-1: oklch(0.18 0.008 260);
+  --ink-2: oklch(0.22 0.01 260);
+  --char: #232834;
+  --line: color-mix(in oklab, #ffffff 8%, transparent);
+  --line-2: color-mix(in oklab, #ffffff 15%, transparent);
+
+  /* signal */
+  --o: #ff7a1a;
+  --o-2: #ffc233;
+  --o-soft: color-mix(in oklab, #ff7a1a 16%, transparent);
+  --o-glow: color-mix(in oklab, #ff7a1a 38%, transparent);
+
+  /* ink */
+  --text: #f5f3ef;
+  --text-dim: #bdbab3;
+  --text-mute: #918d85;
+
+  --sans: var(--font-geist-sans, ui-sans-serif, system-ui, sans-serif);
+  --mono: var(--font-geist-mono, ui-monospace, 'SF Mono', monospace);
+  --display: 'Boston Angel', var(--font-geist-sans, system-ui), sans-serif;
+  --wordmark: 'Outfit', var(--font-geist-sans, system-ui), sans-serif;
+
+  --maxw: 1200px;
+  --pad: clamp(20px, 5vw, 56px);
+
+  position: relative;
+  /* pull the opening under the sticky 65px nav so the pinned scroll starts at
+     the very top (no dead-zone before the AAF11 animation engages) */
+  margin-top: -65px;
+  background: var(--ink);
+  color: var(--text);
+  font-family: var(--sans);
+  font-size: 16px;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  overflow-x: clip;
+}
+
+/* color the top-of-page so the global nav glass sits on charcoal, not the
+   old purple wash from globals.css body backgrounds */
+.root::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  background: var(--ink);
+  pointer-events: none;
+}
+
+.wrap {
+  width: 100%;
+  max-width: var(--maxw);
+  margin: 0 auto;
+  padding-inline: var(--pad);
+}
+
+.mono {
+  font-family: var(--mono);
+  font-feature-settings: 'ss01', 'zero' 1;
+}
+
+/* ---- system label (used sparingly, NOT on every section) ----------------- */
+.sysLabel {
+  font-family: var(--mono);
+  font-size: 12px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--o);
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+}
+.sysLabel::before {
+  content: '';
+  width: 22px;
+  height: 1px;
+  background: var(--o);
+  opacity: 0.7;
+}
+
+/* ---- buttons ------------------------------------------------------------- */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  padding: 13px 22px;
+  border-radius: 999px;
+  font-weight: 560;
+  font-size: 15px;
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition: transform 0.18s cubic-bezier(0.22, 1, 0.36, 1), background 0.2s,
+    border-color 0.2s, color 0.2s;
+}
+.btnPrimary {
+  background: var(--o);
+  color: #1a1206;
+  font-weight: 620;
+}
+.btnPrimary:hover {
+  transform: translateY(-2px);
+  background: var(--o-2);
+}
+.btnGhost {
+  border-color: var(--line-2);
+  color: var(--text);
+}
+.btnGhost:hover {
+  border-color: var(--o);
+  color: var(--o);
+  transform: translateY(-2px);
+}
+.btn .arrow {
+  transition: transform 0.2s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.btn:hover .arrow {
+  transform: translateX(4px);
+}
+
+/* ===================  HERO  =============================================== */
+.hero {
+  position: relative;
+  min-height: 100svh;
+  display: flex;
+  align-items: center;
+  padding-block: clamp(120px, 18vh, 200px) clamp(60px, 10vh, 110px);
+  isolation: isolate;
+}
+.heroCanvas {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+}
+/* fade the 3D out toward the bottom so copy stays legible and the section
+   blends into the next */
+.heroCanvas::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, transparent 40%, var(--ink) 96%),
+    radial-gradient(120% 80% at 70% 30%, transparent 40%, color-mix(in oklab, var(--ink) 70%, transparent));
+  pointer-events: none;
+}
+.heroInner {
+  max-width: 760px;
+}
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  font-family: var(--mono);
+  font-size: 12.5px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--o-2);
+  border: 1px solid var(--line-2);
+  background: color-mix(in oklab, var(--o) 7%, transparent);
+  padding: 7px 14px;
+  border-radius: 999px;
+}
+.chip .pulse {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--o);
+  box-shadow: 0 0 0 0 var(--o-glow);
+  animation: pulse 2.4s ease-out infinite;
+}
+@keyframes pulse {
+  0% { box-shadow: 0 0 0 0 var(--o-glow); }
+  70% { box-shadow: 0 0 0 9px transparent; }
+  100% { box-shadow: 0 0 0 0 transparent; }
+}
+.h1 {
+  margin-top: 26px;
+  font-size: clamp(2.9rem, 8.5vw, 5.6rem);
+  line-height: 0.98;
+  letter-spacing: -0.035em;
+  font-weight: 640;
+  text-wrap: balance;
+}
+.h1 .line {
+  display: block;
+  overflow: hidden;
+}
+.h1 .line:last-child {
+  color: var(--o);
+}
+.sub {
+  margin-top: 28px;
+  max-width: 56ch;
+  font-size: clamp(1.05rem, 1.5vw, 1.24rem);
+  line-height: 1.65;
+  color: var(--text-dim);
+  text-wrap: pretty;
+}
+.ctaRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+  margin-top: 38px;
+}
+.statRow {
+  margin-top: clamp(48px, 7vh, 84px);
+  display: grid;
+  grid-template-columns: repeat(4, auto);
+  gap: clamp(24px, 5vw, 64px);
+  border-top: 1px solid var(--line);
+  padding-top: 28px;
+  max-width: max-content;
+}
+.statNum {
+  font-size: clamp(1.4rem, 2.4vw, 2rem);
+  font-weight: 640;
+  letter-spacing: -0.02em;
+  color: var(--text);
+}
+.statLabel {
+  margin-top: 6px;
+  font-family: var(--mono);
+  font-size: 11.5px;
+  line-height: 1.4;
+  letter-spacing: 0.03em;
+  color: var(--text-mute);
+  max-width: 18ch;
+}
+@media (max-width: 760px) {
+  .statRow { grid-template-columns: repeat(2, 1fr); gap: 26px 32px; max-width: none; }
+}
+
+/* ===================  NAME DECODE (pinned)  ============================== */
+.decode {
+  position: relative;
+  background: var(--ink);
+}
+.decodePin {
+  position: relative;
+  min-height: 100svh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: clamp(28px, 5vh, 56px);
+  padding-block: 80px;
+  text-align: center;
+}
+.decodeScan {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, var(--o), transparent);
+  opacity: 0;
+  filter: blur(0.5px);
+  pointer-events: none;
+}
+.decodeMark {
+  display: flex;
+  gap: clamp(4px, 1.4vw, 16px);
+  font-family: var(--mono);
+  font-weight: 600;
+  font-size: clamp(3.4rem, 16vw, 11rem);
+  line-height: 1;
+  letter-spacing: -0.02em;
+}
+.decodeChar {
+  position: relative;
+  display: inline-block;
+  color: var(--text);
+  will-change: transform, color;
+}
+.decodeChar[data-bin='1'] {
+  color: var(--o);
+}
+.decodeTag {
+  position: absolute;
+  top: 104%;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: clamp(0.5rem, 1.4vw, 0.8rem);
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--text-mute);
+  white-space: nowrap;
+  opacity: 0;
+}
+.decodeSteps {
+  position: relative;
+  height: 2.6em;
+  max-width: 40ch;
+}
+.decodeStep {
+  position: absolute;
+  inset: 0;
+  font-size: clamp(1.05rem, 2vw, 1.5rem);
+  line-height: 1.4;
+  color: var(--text-dim);
+  opacity: 0;
+  text-wrap: balance;
+}
+/* no-JS / reduced-motion fallback: keep the first message visible */
+.decodeStep:first-child { opacity: 1; }
+.decodeStep b {
+  color: var(--o);
+  font-weight: 600;
+}
+.decodeFounders {
+  display: flex;
+  gap: clamp(14px, 3vw, 30px);
+  flex-wrap: wrap;
+  justify-content: center;
+}
+.decodeFounder {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  font-family: var(--mono);
+  font-size: clamp(0.8rem, 1.5vw, 0.98rem);
+  color: var(--text-dim);
+}
+.decodeFounderDot {
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+  display: grid;
+  place-items: center;
+  font-weight: 600;
+  font-size: 0.8rem;
+  color: var(--o-2);
+  background: var(--char);
+  border: 1px solid var(--line-2);
+  box-shadow: 0 0 22px -8px var(--o-glow);
+}
+
+/* ===================  generic section  =================================== */
+.section {
+  position: relative;
+  /* opaque so it occludes the fixed shader layer (no orange bleed past §2) */
+  background: var(--ink);
+  padding-block: clamp(96px, 14vh, 180px);
+}
+.sectionHead {
+  max-width: 760px;
+  margin-bottom: clamp(48px, 7vh, 80px);
+}
+.sectionTitle {
+  margin-top: 18px;
+  font-size: clamp(2rem, 4.2vw, 3.1rem);
+  line-height: 1.05;
+  letter-spacing: -0.03em;
+  font-weight: 620;
+  text-wrap: balance;
+}
+.sectionLede {
+  margin-top: 18px;
+  max-width: 60ch;
+  font-size: clamp(1.05rem, 1.5vw, 1.2rem);
+  color: var(--text-dim);
+  text-wrap: pretty;
+}
+
+/* ---- TRIO ---------------------------------------------------------------- */
+.trio {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: clamp(16px, 2vw, 28px);
+}
+.founder {
+  position: relative;
+  padding: 28px 26px 30px;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: linear-gradient(180deg, var(--ink-1), var(--ink));
+  overflow: hidden;
+  transition: border-color 0.3s, transform 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.founder:hover {
+  border-color: color-mix(in oklab, var(--o) 45%, transparent);
+  transform: translateY(-4px);
+}
+.founderNode {
+  width: 54px;
+  height: 54px;
+  border-radius: 14px;
+  display: grid;
+  place-items: center;
+  font-family: var(--mono);
+  font-weight: 600;
+  font-size: 1.05rem;
+  color: var(--o-2);
+  background: radial-gradient(120% 120% at 30% 20%, var(--o-soft), transparent 70%), var(--char);
+  border: 1px solid var(--line-2);
+  box-shadow: 0 0 30px -8px var(--o-glow);
+}
+.founderRole {
+  margin-top: 22px;
+  font-family: var(--mono);
+  font-size: 12px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--o);
+}
+.founderName {
+  margin-top: 8px;
+  font-size: 1.32rem;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+}
+.founderAxis {
+  margin-top: 3px;
+  font-size: 13px;
+  color: var(--text-mute);
+}
+.founderBlurb {
+  margin-top: 16px;
+  font-size: 14.5px;
+  line-height: 1.6;
+  color: var(--text-dim);
+}
+@media (max-width: 820px) {
+  .trio { grid-template-columns: 1fr; }
+}
+
+/* ---- CAPABILITIES -------------------------------------------------------- */
+.caps {
+  display: grid;
+  grid-template-columns: 1.25fr 1fr 1fr;
+  gap: clamp(14px, 1.6vw, 22px);
+  align-items: stretch;
+}
+.cap {
+  position: relative;
+  padding: clamp(26px, 3vw, 40px);
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  display: flex;
+  flex-direction: column;
+  min-height: 320px;
+  transition: border-color 0.3s, background 0.3s;
+}
+.cap:first-child {
+  background: radial-gradient(130% 100% at 0% 0%, var(--o-soft), transparent 55%),
+    linear-gradient(180deg, var(--ink-1), var(--ink));
+  border-color: color-mix(in oklab, var(--o) 30%, transparent);
+}
+.cap:hover { border-color: var(--line-2); }
+.capHorizon {
+  align-self: flex-start;
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  padding: 4px 10px;
+  border-radius: 999px;
+  border: 1px solid var(--line-2);
+  color: var(--text-mute);
+}
+.cap:first-child .capHorizon {
+  color: var(--o-2);
+  border-color: color-mix(in oklab, var(--o) 40%, transparent);
+}
+.capTitle {
+  margin-top: auto;
+  padding-top: 26px;
+  font-size: clamp(1.4rem, 2vw, 1.85rem);
+  font-weight: 620;
+  letter-spacing: -0.02em;
+}
+.capBlurb {
+  margin-top: 12px;
+  font-size: 14.5px;
+  line-height: 1.6;
+  color: var(--text-dim);
+}
+.capDetail {
+  margin-top: 18px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+}
+.capTag {
+  font-family: var(--mono);
+  font-size: 11.5px;
+  color: var(--text-mute);
+  border: 1px solid var(--line);
+  border-radius: 7px;
+  padding: 3px 9px;
+}
+@media (max-width: 920px) {
+  .caps { grid-template-columns: 1fr; }
+  .cap { min-height: 0; }
+}
+
+/* ---- TRACK RECORD (horizontal pinned) ------------------------------------ */
+.work {
+  position: relative;
+  background: linear-gradient(180deg, var(--ink), var(--ink-1) 50%, var(--ink));
+}
+.workScroller {
+  overflow-x: auto;
+  overflow-y: hidden;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.workScroller::-webkit-scrollbar { display: none; }
+.workTrack {
+  display: flex;
+  gap: clamp(16px, 2vw, 26px);
+  width: max-content;
+  padding-inline: var(--pad);
+  align-items: stretch;
+}
+.workCard {
+  width: clamp(280px, 78vw, 400px);
+  flex: 0 0 auto;
+  padding: 30px 28px;
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  background: linear-gradient(180deg, var(--ink-1), var(--ink));
+  display: flex;
+  flex-direction: column;
+}
+.workCardHead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+.workName {
+  font-size: 1.5rem;
+  font-weight: 620;
+  letter-spacing: -0.02em;
+}
+.workStatus {
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 4px 9px;
+  border-radius: 999px;
+  border: 1px solid var(--line-2);
+  color: var(--text-mute);
+  white-space: nowrap;
+}
+.workStatus[data-s='Shipped'] { color: var(--o-2); border-color: color-mix(in oklab, var(--o) 40%, transparent); }
+.workStatus[data-s='In build'] { color: var(--text-dim); }
+.workStatus[data-s='Active'] { color: var(--o); border-color: color-mix(in oklab, var(--o) 45%, transparent); }
+.workDomain {
+  margin-top: 14px;
+  font-family: var(--mono);
+  font-size: 12px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--o);
+}
+.workBlurb {
+  margin-top: 14px;
+  font-size: 15px;
+  line-height: 1.62;
+  color: var(--text-dim);
+}
+.workIndex {
+  margin-top: auto;
+  padding-top: 22px;
+  font-family: var(--mono);
+  font-size: 12px;
+  color: var(--text-mute);
+}
+.workHint {
+  margin-top: 26px;
+  font-family: var(--mono);
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  color: var(--text-mute);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+/* ---- EDGE ---------------------------------------------------------------- */
+.edge {
+  position: relative;
+}
+.edgeGrid {
+  display: grid;
+  grid-template-columns: 1.1fr 0.9fr;
+  gap: clamp(40px, 6vw, 90px);
+  align-items: start;
+}
+.edgeLead {
+  font-size: clamp(2rem, 4.6vw, 3.4rem);
+  line-height: 1.04;
+  letter-spacing: -0.03em;
+  font-weight: 640;
+  text-wrap: balance;
+}
+.edgeLead em {
+  font-style: normal;
+  color: var(--o);
+}
+.edgeBody {
+  margin-top: 22px;
+  font-size: clamp(1.05rem, 1.5vw, 1.18rem);
+  line-height: 1.7;
+  color: var(--text-dim);
+  max-width: 50ch;
+}
+.edgePoints {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+.edgePoint {
+  padding: 20px 0;
+  border-top: 1px solid var(--line);
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 5px;
+}
+.edgePoint:last-child { border-bottom: 1px solid var(--line); }
+.edgePointK {
+  font-weight: 600;
+  font-size: 1.02rem;
+  color: var(--text);
+}
+.edgePointV {
+  font-size: 14.5px;
+  color: var(--text-mute);
+}
+@media (max-width: 860px) {
+  .edgeGrid { grid-template-columns: 1fr; gap: 40px; }
+}
+
+/* ---- CTA ----------------------------------------------------------------- */
+.cta {
+  position: relative;
+  text-align: center;
+  padding-block: clamp(110px, 18vh, 220px);
+  background: radial-gradient(90% 130% at 50% 120%, var(--o-soft), transparent 60%), var(--ink);
+  overflow: hidden;
+}
+.ctaHead {
+  font-size: clamp(2.4rem, 6vw, 4.4rem);
+  line-height: 1.0;
+  letter-spacing: -0.035em;
+  font-weight: 640;
+  text-wrap: balance;
+}
+.ctaSub {
+  margin: 22px auto 0;
+  max-width: 44ch;
+  font-size: clamp(1.1rem, 1.7vw, 1.3rem);
+  color: var(--text-dim);
+}
+.ctaBtnRow {
+  margin-top: 40px;
+  display: flex;
+  justify-content: center;
+}
+.signoff {
+  margin-top: clamp(70px, 12vh, 130px);
+  font-family: var(--mono);
+  font-size: clamp(1rem, 3vw, 1.4rem);
+  letter-spacing: 0.04em;
+  color: var(--o);
+}
+.signoff::before { content: '// '; color: var(--text-mute); }
+
+/* ===================  OPENING (section 1 → 2 title sequence)  ============ */
+.opening {
+  position: relative;
+  background: #181616;
+}
+.openingPin {
+  position: relative;
+  height: 100svh;
+  overflow: hidden;
+  display: grid;
+  place-items: center;
+}
+/* solid #181616 plate that covers the shader at the start, then fades out */
+.openSolid {
+  position: absolute;
+  inset: 0;
+  background: #181616;
+  z-index: 1;
+  pointer-events: none;
+}
+/* orange shader canvas behind everything (section 2 background) */
+.openShader {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  opacity: 0;
+  pointer-events: none;
+}
+.openShader canvas {
+  display: block;
+  width: 100% !important;
+  height: 100% !important;
+}
+/* fixed full-viewport shader layer: never resizes/clips, so it renders smoothly
+   in both scroll directions (no grey flash on the section-2 → 3 transition) */
+.openShaderFixed {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+}
+.openShaderFixed canvas {
+  display: block;
+  width: 100% !important;
+  height: 100% !important;
+}
+/* 3D logo sits in the lower area, below the wordmark */
+.openLogo {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 52svh;
+  z-index: 2;
+  pointer-events: none;
+}
+.openLogo canvas {
+  display: block;
+  width: 100% !important;
+  height: 100% !important;
+}
+/* small framing copy in section 1 */
+.openFrame {
+  position: absolute;
+  inset: clamp(80px, 12vh, 130px) var(--pad) clamp(40px, 8vh, 80px);
+  z-index: 3;
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  pointer-events: none;
+}
+.openRow {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+}
+.openTag {
+  font-family: var(--mono);
+  font-size: clamp(10px, 1.1vw, 12px);
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--text-mute);
+}
+.openMid {
+  align-self: center;
+  justify-self: center;
+  text-align: center;
+  max-width: 92vw;
+  font-family: var(--display);
+  font-weight: 500;
+  font-size: clamp(2.4rem, 12vw, 11rem);
+  line-height: 1.04;
+  color: var(--text-dim);
+  letter-spacing: 0;
+  text-wrap: balance;
+}
+.openMidAccent {
+  display: inline-block;
+  color: var(--o);
+  font-weight: 600;
+  will-change: transform, opacity;
+}
+.openFoot {
+  align-self: end;
+  justify-self: center;
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--text-mute);
+  display: flex;
+  align-items: center;
+  gap: 9px;
+}
+.openFoot::before {
+  content: '';
+  width: 1px;
+  height: 26px;
+  background: linear-gradient(var(--text-mute), transparent);
+}
+/* the wordmark — scrubbed up + scaled by GSAP */
+.openMark {
+  position: relative;
+  z-index: 2;
+  margin: 0;
+  font-family: var(--wordmark);
+  font-weight: 800;
+  /* rendered at final size; the scrub scales DOWN→1 so the end state is native
+     resolution (no transform-upscale blur) */
+  font-size: clamp(6rem, 19.5vw, 18rem);
+  line-height: 0.82;
+  letter-spacing: -0.02em;
+  color: var(--text);
+  text-align: center;
+  will-change: transform;
+  transform-origin: center center;
+}
+.openMark b {
+  color: var(--o);
+  font-weight: 800;
+}
+/* hoverable parts + tooltips (AAF = hex, 11 = binary 3 = three founders) */
+.openPart {
+  position: relative;
+  display: inline-block;
+  cursor: help;
+}
+.openTip {
+  position: absolute;
+  left: 50%;
+  bottom: calc(100% + 0.12em);
+  transform: translate(-50%, 6px);
+  /* reset the huge inherited display metrics */
+  font-family: var(--mono);
+  font-weight: 500;
+  font-size: clamp(11px, 1.1vw, 14px);
+  letter-spacing: 0.02em;
+  line-height: 1.3;
+  white-space: nowrap;
+  color: var(--text);
+  background: color-mix(in oklab, var(--char) 92%, black);
+  border: 1px solid var(--line-2);
+  border-radius: 9px;
+  padding: 8px 13px;
+  opacity: 0;
+  pointer-events: none;
+  box-shadow: 0 12px 30px -12px rgba(0, 0, 0, 0.7);
+  transition: opacity 0.22s ease, transform 0.22s cubic-bezier(0.22, 1, 0.36, 1);
+  z-index: 5;
+}
+.openPart:hover .openTip {
+  opacity: 1;
+  transform: translate(-50%, 0);
+}
+
+/* reveal marker: content is visible by default (no-JS / headless safe).
+   GSAP applies the from() start-state in a layout effect before paint, so the
+   reveal enhances an already-visible default rather than gating visibility. */
+.reveal { opacity: 1; }
+
+@media (prefers-reduced-motion: reduce) {
+  .chip .pulse { animation: none; }
+}

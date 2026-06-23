@@ -145,9 +145,13 @@ a {
   position: sticky;
   top: 0;
   z-index: 50;
-  backdrop-filter: blur(14px);
-  background: rgba(8, 8, 10, 0.7);
-  border-bottom: 1px solid var(--border);
+  background: #181616;
+  border-bottom: 1px solid transparent;
+  transition: transform 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+  will-change: transform;
+}
+.nav--hidden {
+  transform: translateY(-100%);
 }
 .nav-inner {
   display: flex;
