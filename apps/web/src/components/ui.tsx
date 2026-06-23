@@ -1,12 +1,26 @@
-import React from 'react';
+'use client';
+
+import React, { useEffect, useState } from 'react';
 import type { HealthStatus } from '@aaf11/shared';
 
 export function Nav() {
+  const [hidden, setHidden] = useState(false);
+
+  useEffect(() => {
+    // visible only while in the first section (near the top); hidden everywhere
+    // else regardless of scroll direction.
+    const onScroll = () => setHidden(window.scrollY > window.innerHeight * 0.5);
+    onScroll();
+    window.addEventListener('scroll', onScroll, { passive: true });
+    return () => window.removeEventListener('scroll', onScroll);
+  }, []);
+
   return (
-    <nav className="nav">
+    <nav className={`nav${hidden ? ' nav--hidden' : ''}`}>
       <div className="container nav-inner">
         <a href="/" className="brand">
-          <span className="brand-mark" />
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src="/aaf11_logo.svg" alt="AAF11" width={26} height={26} style={{ display: 'block' }} />
           AAF11 <span className="muted" style={{ fontWeight: 400 }}>Nexus</span>
         </a>
         <div className="nav-links">
@@ -29,7 +43,8 @@ export function Footer() {
     <footer className="footer">
       <div className="container footer-inner">
         <div className="brand">
-          <span className="brand-mark" />
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src="/aaf11_logo.svg" alt="AAF11" width={24} height={24} style={{ display: 'block' }} />
           AAF11
         </div>
         <div>© 2026 Team AAF11 — built on Nexus.</div>

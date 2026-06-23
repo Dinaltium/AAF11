@@ -50,3 +50,7 @@ packages/sdk-py/build/
 packages/sdk-py/dist/
 
 # Source docx kept for reference (already committed once)
+
+# Local dev tooling state (Claude Code launch config, Impeccable live sessions)
+.claude/
+.impeccable/
