@@ -2,80 +2,64 @@ import React, { useCallback, useEffect, useState } from 'react';
 import type {
   ProjectRecord,
   ActionLogEntry,
-  MetricsSnapshot,
   HealthStatus,
   ActionDescriptor,
 } from '@aaf11/shared';
-import { Chart } from './components/Chart';
-import { openAdminWindow, notify } from './tauri';
-import {
-  isTestMode,
-  getProjects,
-  getSnapshots,
-  getActionLog,
-  getActions,
-  triggerAction,
-} from './api';
+import { openAdminWindow } from './tauri';
+import { isTestMode, getProjects, getActionLog, getActions, triggerAction } from './api';
+import { useAuth } from './auth';
+import { AppSidebar, type View } from '@/components/AppSidebar';
+import { Sales } from '@/pages/Sales';
+import { Logs } from '@/pages/Logs';
+import { Users } from '@/pages/Users';
+import { CreateUser } from '@/pages/CreateUser';
+import { SidebarInset, SidebarProvider, SidebarTrigger } from '@/components/ui/sidebar';
+import { Separator } from '@/components/ui/separator';
+import { Button } from '@/components/ui/button';
 
 const HUB = (import.meta.env as Record<string, string | undefined>).AAF11_HUB_URL ?? 'http://localhost:3000';
 const MEMBER_TOKEN =
   (import.meta.env as Record<string, string | undefined>).AAF11_MEMBER_TOKEN ?? 'mbr_rafan_test0001';
 
-type View = 'dashboard' | 'projects' | 'actions' | 'incidents' | 'content';
+const TITLES: Record<View, string> = {
+  sales: 'Sales',
+  logs: 'Logs',
+  users: 'Users',
+  'create-user': 'Add user',
+  projects: 'Projects',
+  actions: 'Actions',
+  incidents: 'Incidents',
+  content: 'Content',
+};
 
-const NAV: { id: View; label: string; ico: string }[] = [
-  { id: 'dashboard', label: 'Dashboard', ico: '◧' },
-  { id: 'projects', label: 'Projects', ico: '▤' },
-  { id: 'actions', label: 'Actions', ico: '⚡' },
-  { id: 'incidents', label: 'Incidents', ico: '⚑' },
-  { id: 'content', label: 'Content', ico: '✎' },
-];
+const LEGACY: View[] = ['projects', 'actions', 'incidents'];
 
+/** Dot-free status label (no colored/glowing dots anywhere by design). */
 function Status({ status }: { status: HealthStatus }) {
   const label = status === 'healthy' ? 'Operational' : status === 'degraded' ? 'Degraded' : 'Down';
-  return (
-    <span className={`badge s-${status}`}>
-      <span className="dot" />
-      {label}
-    </span>
-  );
+  return <span className={`badge s-${status}`}>{label}</span>;
 }
 
 export function App() {
-  const [view, setView] = useState<View>('dashboard');
+  const { user, signOut } = useAuth();
+  const [view, setView] = useState<View>('sales');
   const [projects, setProjects] = useState<ProjectRecord[]>([]);
-  const [snaps, setSnaps] = useState<Record<string, MetricsSnapshot[]>>({});
   const [log, setLog] = useState<ActionLogEntry[]>([]);
   const [toast, setToast] = useState<string | null>(null);
-  const [hubOk, setHubOk] = useState(true);
-  const [lastSync, setLastSync] = useState<number | null>(null);
   const [loading, setLoading] = useState(false);
 
   const load = useCallback(async () => {
     setLoading(true);
     try {
-      const ps = await getProjects(MEMBER_TOKEN);
-      setProjects(ps);
-      const map: Record<string, MetricsSnapshot[]> = {};
-      for (const p of ps) map[p.id] = await getSnapshots(p.id, MEMBER_TOKEN).catch(() => []);
-      setSnaps(map);
+      setProjects(await getProjects(MEMBER_TOKEN));
       setLog(await getActionLog(MEMBER_TOKEN).catch(() => []));
-      setHubOk(true);
-    } catch {
-      // real mode + Hub unreachable: flag it, keep last-known data
-      setHubOk(false);
     } finally {
-      setLastSync(Date.now());
       setLoading(false);
     }
   }, []);
 
-  // Initial load + a slow hourly safety sync. Use the Refresh button for
-  // on-demand updates while working.
   useEffect(() => {
     load();
-    const id = setInterval(load, 60 * 60 * 1000); // 1 hour
-    return () => clearInterval(id);
   }, [load]);
 
   function showToast(msg: string) {
@@ -84,59 +68,49 @@ export function App() {
   }
 
   return (
-    <div className="app">
-      <aside className="sidebar">
-        <div className="side-brand">
-          <span className="side-mark" /> AAF11 Nexus
-        </div>
-        {NAV.map((n) => (
-          <div
-            key={n.id}
-            className={`nav-item ${view === n.id ? 'active' : ''}`}
-            onClick={() => setView(n.id)}
-          >
-            <span className="nav-ico">{n.ico}</span>
-            {n.label}
+    <SidebarProvider>
+      <AppSidebar view={view} setView={setView} email={user?.email ?? null} onSignOut={signOut} />
+      <SidebarInset>
+        <header className="flex h-14 shrink-0 items-center gap-2 border-b px-4">
+          <SidebarTrigger className="-ml-1" />
+          <Separator orientation="vertical" className="mr-1 h-4" />
+          <div className="text-sm">
+            <span className="text-muted-foreground">AAF11 Nexus</span>
+            <span className="text-muted-foreground mx-1.5">/</span>
+            <span className="font-medium">{TITLES[view]}</span>
           </div>
-        ))}
-        <div className="side-foot">
-          {isTestMode() ? 'test · mock data' : 'real · live hub'}
-        </div>
-      </aside>
-
-      <div className="main">
-        <div className="topbar">
-          <h1>{NAV.find((n) => n.id === view)?.label}</h1>
-          <div className="row" style={{ gap: 14 }}>
-            {!isTestMode() && (
-              <span
-                className="mono"
-                style={{ fontSize: 11, color: hubOk ? 'var(--ok)' : 'var(--down)' }}
-                title={hubOk ? 'Hub reachable' : 'Hub unreachable — is it running?'}
-              >
-                ● {hubOk ? 'hub live' : 'hub unreachable'}
-              </span>
+          <div className="ml-auto flex items-center gap-3">
+            <span className="text-muted-foreground font-mono text-[11px] tracking-wide uppercase">
+              {isTestMode() ? 'Test' : 'Live'}
+            </span>
+            {LEGACY.includes(view) && (
+              <Button size="sm" variant="outline" onClick={() => load()} disabled={loading}>
+                {loading ? 'Syncing…' : 'Refresh'}
+              </Button>
             )}
-            <span className="mono muted" style={{ fontSize: 11 }}>
-              {loading ? 'syncing…' : lastSync ? `synced ${Math.round((Date.now() - lastSync) / 1000)}s ago` : '—'}
-            </span>
-            <button className="btn" onClick={() => load()} disabled={loading}>
-              ↻ Refresh
-            </button>
-            <span className={`mode-pill ${isTestMode() ? 'mode-test' : 'mode-real'}`}>
-              {isTestMode() ? 'TEST MODE' : 'REAL MODE'}
-            </span>
           </div>
-        </div>
-        <div className="content">
-          {view === 'dashboard' && <Dashboard projects={projects} snaps={snaps} onNotify={() => notify('AAF11 Nexus', 'Test alert from the desktop app')} />}
+        </header>
+
+        <div className="flex-1 overflow-auto p-5">
+          {view === 'sales' && <Sales />}
+          {view === 'logs' && <Logs />}
+          {view === 'users' && <Users onCreate={() => setView('create-user')} />}
+          {view === 'create-user' && (
+            <CreateUser
+              onCancel={() => setView('users')}
+              onCreated={(m) => {
+                showToast(m);
+                setView('users');
+              }}
+            />
+          )}
           {view === 'projects' && <Projects projects={projects} />}
           {view === 'actions' && (
             <Actions
               projects={projects}
               onTrigger={async (pid, action) => {
                 const r = await triggerAction(pid, action, MEMBER_TOKEN);
-                showToast(r.ok ? `✓ ${action} dispatched` : `✕ ${r.error ?? 'failed'}`);
+                showToast(r.ok ? `${action} dispatched` : `${r.error ?? 'failed'}`);
                 setLog(await getActionLog(MEMBER_TOKEN).catch(() => log));
               }}
             />
@@ -144,83 +118,14 @@ export function App() {
           {view === 'incidents' && <Incidents log={log} />}
           {view === 'content' && <Content />}
         </div>
-      </div>
+      </SidebarInset>
 
       {toast && <div className="toast">{toast}</div>}
-    </div>
+    </SidebarProvider>
   );
 }
 
-function Dashboard({
-  projects,
-  snaps,
-  onNotify,
-}: {
-  projects: ProjectRecord[];
-  snaps: Record<string, MetricsSnapshot[]>;
-  onNotify: () => void;
-}) {
-  const healthy = projects.filter((p) => p.status === 'healthy').length;
-  const degraded = projects.filter((p) => p.status === 'degraded').length;
-  const down = projects.filter((p) => p.status === 'down').length;
-
-  return (
-    <>
-      <div className="grid grid-4" style={{ marginBottom: 24 }}>
-        <Stat label="Projects" value={projects.length} />
-        <Stat label="Operational" value={healthy} color="var(--ok)" />
-        <Stat label="Degraded" value={degraded} color="var(--warn)" />
-        <Stat label="Down" value={down} color="var(--down)" />
-      </div>
-      <div className="row" style={{ justifyContent: 'space-between', marginBottom: 14 }}>
-        <div className="section-title" style={{ margin: 0 }}>Live project health</div>
-        <button className="btn" onClick={onNotify}>Test alert →</button>
-      </div>
-      {projects.length === 0 && (
-        <div className="card" style={{ textAlign: 'center', padding: 40 }}>
-          <div className="card-title">No projects connected</div>
-          <p className="muted" style={{ marginTop: 8, fontSize: 14 }}>
-            Start the Hub and connect a project with the SDK, then hit{' '}
-            <span className="mono">Refresh</span>. (Auto-syncs hourly.)
-          </p>
-        </div>
-      )}
-      <div className="grid grid-3">
-        {projects.map((p) => {
-          const series = (snaps[p.id] ?? []).map((s) => s.requestCount);
-          const color =
-            p.status === 'down' ? 'var(--down)' : p.status === 'degraded' ? 'var(--warn)' : 'var(--accent)';
-          return (
-            <div key={p.id} className="card">
-              <div className="card-h">
-                <span className="card-title">{p.name}</span>
-                <Status status={p.status} />
-              </div>
-              <div style={{ margin: '14px 0 6px' }}>
-                <Chart values={series} color={color} />
-              </div>
-              <div className="row" style={{ justifyContent: 'space-between' }}>
-                <span className="mono muted" style={{ fontSize: 11 }}>{p.environment}</span>
-                <span className="mono muted" style={{ fontSize: 11 }}>
-                  {series.length ? `${series[series.length - 1]} req` : '—'}
-                </span>
-              </div>
-            </div>
-          );
-        })}
-      </div>
-    </>
-  );
-}
-
-function Stat({ label, value, color }: { label: string; value: number; color?: string }) {
-  return (
-    <div className="card">
-      <div className="stat-num" style={{ color }}>{value}</div>
-      <div className="stat-label">{label}</div>
-    </div>
-  );
-}
+/* ---- legacy views (kept, dot-free; restyled one at a time) --------------- */
 
 function Projects({ projects }: { projects: ProjectRecord[] }) {
   return (
@@ -296,7 +201,7 @@ function Actions({
       <div className="section-title">Dispatch a control action</div>
       <p className="muted" style={{ marginBottom: 16, fontSize: 13 }}>
         Actions route through the Hub control plane, verify ownership, and are logged to the
-        incident trail. Buttons reflect what this project actually exposes.
+        incident trail.
       </p>
       <select
         className="select"
@@ -311,27 +216,15 @@ function Actions({
         ))}
       </select>
       {loading ? (
-        <p className="muted" style={{ fontSize: 13 }}>
-          loading actions…
-        </p>
+        <p className="muted" style={{ fontSize: 13 }}>loading actions…</p>
       ) : !reachable ? (
-        <p className="muted" style={{ fontSize: 13 }}>
-          Connector unreachable — can&apos;t list actions. Is the project running?
-        </p>
+        <p className="muted" style={{ fontSize: 13 }}>Connector unreachable — is the project running?</p>
       ) : actions.length === 0 ? (
-        <p className="muted" style={{ fontSize: 13 }}>
-          This project exposes no actions. Register some with{' '}
-          <span className="mono">connector.registerAction(...)</span>.
-        </p>
+        <p className="muted" style={{ fontSize: 13 }}>This project exposes no actions.</p>
       ) : (
         <div className="row">
           {actions.map((a) => (
-            <button
-              key={a.id}
-              className={classFor(a.id)}
-              title={a.description ?? a.id}
-              onClick={() => onTrigger(pid, a.id)}
-            >
+            <button key={a.id} className={classFor(a.id)} title={a.description ?? a.id} onClick={() => onTrigger(pid, a.id)}>
               {a.label}
             </button>
           ))}
@@ -380,15 +273,13 @@ function Content() {
     <div className="card" style={{ maxWidth: 620 }}>
       <div className="section-title">Content management</div>
       <p className="muted" style={{ marginBottom: 18, fontSize: 13 }}>
-        Blog posts, services, and team profiles are edited in the Payload admin, embedded
-        here in a native window — you never leave the app.
+        Blog posts, services, and team profiles are edited in the Payload admin, embedded here in a
+        native window.
       </p>
       <button className="btn btn-primary" onClick={() => openAdminWindow(`${HUB}/admin`)}>
         Open content editor →
       </button>
-      <p className="mono muted" style={{ marginTop: 16, fontSize: 11 }}>
-        {HUB}/admin
-      </p>
+      <p className="mono muted" style={{ marginTop: 16, fontSize: 11 }}>{HUB}/admin</p>
     </div>
   );
 }
