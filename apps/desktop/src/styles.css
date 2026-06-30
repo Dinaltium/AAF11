@@ -17,15 +17,14 @@
   --font-mono: ui-monospace, 'SF Mono', 'JetBrains Mono', Consolas, monospace;
 }
 
-* { box-sizing: border-box; margin: 0; padding: 0; }
-html, body, #root { height: 100%; }
-body {
-  background: var(--bg);
-  color: var(--text);
-  font-family: var(--font-sans);
-  font-size: 14px;
-  -webkit-font-smoothing: antialiased;
-  overflow: hidden;
+/* NOTE: the global `* { padding:0 }` reset and the body background/font were
+   removed — they are UNLAYERED and so overrode all of Tailwind's (layered)
+   utilities app-wide, killing every p-* and the theme background. Tailwind's
+   preflight already provides box-sizing + margin reset. Legacy component
+   classes below only style the not-yet-migrated views. */
+html,
+#root {
+  height: 100%;
 }
 
 .app {
